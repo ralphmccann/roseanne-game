@@ -410,6 +410,65 @@ Tina Fey,Writer & Comedian,https://example.com/tina.jpg,false</div>
         }
 
         processButton.addEventListener('click', async () => {
+    if (csvData.length === 0) {
+        showResult('error', 'No data to upload');
+        return;
+    }
+
+    processButton.disabled = true;
+    progressSection.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Starting bulk upload...';
+
+    try {
+        progressBar.style.width = '50%';
+        progressText.textContent = 'Uploading all celebrities...';
+
+        const response = await fetch('/api/bulk-upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                celebrities: csvData
+            })
+        });
+
+        const result = await response.json();
+        
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Upload complete!';
+
+        if (response.ok) {
+            const message = `Upload completed! ${result.results.successful} successful, ${result.results.failed} failed.`;
+            let errorDetails = '';
+            if (result.results.errors.length > 0) {
+                errorDetails = '\n\nErrors:\n' + result.results.errors.slice(0, 5).join('\n');
+                if (result.results.errors.length > 5) {
+                    errorDetails += `\n... and ${result.results.errors.length - 5} more errors`;
+                }
+            }
+            
+            showResult(result.results.failed === 0 ? 'success' : 'warning', message + errorDetails);
+            
+            if (result.results.successful > 0) {
+                setTimeout(() => {
+                    if (confirm('Upload successful! Go back to main admin to test?')) {
+                        window.location.href = '/admin.html';
+                    }
+                }, 2000);
+            }
+        } else {
+            showResult('error', result.error || 'Upload failed');
+        }
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        showResult('error', `Network error: ${error.message}`);
+    } finally {
+        processButton.disabled = false;
+    }
+});
             if (csvData.length === 0) {
                 showResult('error', 'No data to upload');
                 return;
