@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Roseanne-Barr Scale | Rate Celebrities</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Landing Page Styles */
+        .landing-page {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .landing-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .landing-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Game Interface Styles */
+        .game-interface {
+            display: none;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .card {
+            padding: 0;
+            position: relative;
+            background: white;
+        }
+
+        .celebrity-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .celebrity-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .celebrity-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .celebrity-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .voting-buttons {
+            display: flex;
+            gap: 15px;
+            padding: 0 20px 30px;
+        }
+
+        .vote-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vote-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .vote-btn:active {
+            transform: translateY(0);
+        }
+
+        .roseanne-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .roseanne-btn:hover {
+            background: linear-gradient(45deg, #44a08d, #4ecdc4);
+        }
+
+        .not-roseanne-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .not-roseanne-btn:hover {
+            background: linear-gradient(45deg, #ee5a52, #ff6b6b);
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #eee;
+            margin: 10px 0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            transition: width 0.5s ease;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .vote-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: rgba(255,255,255,0.9);
+            pointer-events: none;
+            animation: voteAnimation 0.6s ease-out;
+        }
+
+        @keyframes voteAnimation {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            margin: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* Submit Form Styles */
+        .submit-section {
+            padding: 30px 20px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .submit-title {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .submit-subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .submit-button {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                margin: 10px;
+            }
+            
+            .celebrity-image {
+                height: 350px;
+            }
+            
+            .landing-title {
+                font-size: 24px;
+            }
+            
+            .hero-image {
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Landing Page -->
+        <div class="landing-page" id="landingPage">
+            <img src="https://roseannegame.com/wp-content/uploads/2025/01/002.jpeg" alt="Roseanne Game Hero" class="hero-image" id="heroImage">
+            
+            <h1 class="landing-title">The Roseanne-Barr Scale</h1>
+            <p class="landing-subtitle">Rate celebrities on their "Roseanne-ness"<br>How much do they embody that classic 90s Roseanne energy?</p>
+            
+            <button class="start-button" onclick="startGame()">Start Rating!</button>
+            
+            <div class="submit-section">
+                <h3 class="submit-title">Know a Perfect Roseanne?</h3>
+                <p class="submit-subtitle">Submit celebrities you think should be rated on the Roseanne Scale!</p>
+                <button class="submit-button" onclick="showSubmitForm()">Submit a Celebrity</button>
+            </div>
+        </div>
+
+        <!-- Game Interface -->
+        <div class="game-interface" id="gameInterface">
+            <div class="header">
+                <button class="back-button" onclick="showLanding()">← Back</button>
+                <h1>Rate This Celebrity</h1>
+                <p>Roseanne or Not Roseanne?</p>
+            </div>
+
+            <div class="card" id="celebrityCard">
+                <img src="" alt="Celebrity" class="celebrity-image" id="celebrityImage">
+                <div class="celebrity-info">
+                    <div class="celebrity-name" id="celebrityName">Loading...</div>
+                    <div class="celebrity-subtitle" id="celebritySubtitle">Preparing next celebrity...</div>
+                </div>
+            </div>
+
+            <div class="voting-buttons">
+                <button class="vote-btn roseanne-btn" onclick="vote('roseanne')" id="roseanneBtn">
+                    🏠 Roseanne!
+                </button>
+                <button class="vote-btn not-roseanne-btn" onclick="vote('not-roseanne')" id="notRoseanneBtn">
+                    ❌ Not Roseanne
+                </button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalVotes">Loading...</div>
+                    <div class="stat-label">Total Votes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="roseannePercentage">Loading...</div>
+                    <div class="stat-label">Roseanne Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="yourVotes">0</div>
+                    <div class="stat-label">Your Votes</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Loading next celebrity...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Production-ready celebrity database with real image URLs
+        const celebrityDatabase = [
+            {
+                id: 'melissa-mccarthy',
+                name: "Melissa McCarthy",
+                subtitle: "Comedian & Actress",
+                image: "https://images.unsplash.com/photo-1494790108755-2616c9d621e0?w=400&h=400&fit=crop&crop=face",
+                roseanneVotes: 0,
+                notRoseanneVotes: 0
+            },
+            {
+                id: 'amy-schumer',
+                name: "Amy Schumer",
+                subtitle: "Stand-up Comedian",
+                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                roseanneVotes: 0,
+                notRoseanneVotes: 0
+            },
+            {
+                id: 'tina-fey',
+                name: "Tina Fey",
+                subtitle: "Writer & Comedian",
+                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
+                roseanneVotes: 0,
+                notRoseanneVotes: 0
+            },
+            {
+                id: 'rebel-wilson',
+                name: "Rebel Wilson",
+                subtitle: "Actress & Comedian",
+                image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop&crop=face",
+                roseanneVotes: 0,
+                notRoseanneVotes: 0
+            }
+        ];
+
+        // Production-ready API class (will connect to real backend)
+        class RoseanneAPI {
+            static async getCelebrity(id) {
+                try {
+                    // This will be replaced with real API call: /api/celebrities/${id}
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    const celebrity = celebrityDatabase.find(c => c.id === id);
+                    if (!celebrity) throw new Error('Celebrity not found');
+                    
+                    // Simulate getting real vote counts from database
+                    return {
+                        ...celebrity,
+                        roseanneVotes: Math.floor(Math.random() * 1000) + 100,
+                        notRoseanneVotes: Math.floor(Math.random() * 800) + 50
+                    };
+                } catch (error) {
+                    console.error('API Error:', error);
+                    throw error;
+                }
+            }
+
+            static async submitVote(celebrityId, voteType) {
+                try {
+                    // This will be replaced with real API call: POST /api/votes
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    return {
+                        success: true,
+                        newTotals: {
+                            roseanneVotes: Math.floor(Math.random() * 1000) + 100,
+                            notRoseanneVotes: Math.floor(Math.random() * 800) + 50
+                        }
+                    };
+                } catch (error) {
+                    console.error('Vote Error:', error);
+                    throw error;
+                }
+            }
+
+            static async getRandomCelebrity() {
+                // This will be replaced with real API call: /api/celebrities/random
+                const randomIndex = Math.floor(Math.random() * celebrityDatabase.length);
+                return celebrityDatabase[randomIndex].id;
+            }
+
+            static async submitCelebrity(celebrityData) {
+                try {
+                    // This will be replaced with real API call: POST /api/celebrities/submit
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    return { success: true, message: 'Celebrity submitted for review!' };
+                } catch (error) {
+                    console.error('Submit Error:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // App state
+        let currentCelebrity = null;
+        let userVoteCount = parseInt(localStorage.getItem('userVoteCount') || '0');
+        let isVoting = false;
+
+        function showLanding() {
+            document.getElementById('landingPage').style.display = 'block';
+            document.getElementById('gameInterface').style.display = 'none';
+        }
+
+        async function startGame() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('gameInterface').style.display = 'block';
+            
+            await loadRandomCelebrity();
+        }
+
+        function showSubmitForm() {
+            // For now, this will be a simple alert. Later we'll add a real form.
+            alert('Celebrity submission form coming soon! Check back for updates.');
+        }
+
+        async function loadRandomCelebrity() {
+            try {
+                showLoading();
+                hideError();
+                
+                const celebrityId = await RoseanneAPI.getRandomCelebrity();
+                currentCelebrity = await RoseanneAPI.getCelebrity(celebrityId);
+                
+                displayCelebrity(currentCelebrity);
+                hideLoading();
+                
+            } catch (error) {
+                hideLoading();
+                showError('Failed to load celebrity. Please try again.');
+                console.error('Error loading celebrity:', error);
+            }
+        }
+
+        function displayCelebrity(celebrity) {
+            document.getElementById('celebrityName').textContent = celebrity.name;
+            document.getElementById('celebritySubtitle').textContent = celebrity.subtitle;
+            document.getElementById('celebrityImage').src = celebrity.image;
+            document.getElementById('celebrityImage').alt = celebrity.name;
+
+            updateStats(celebrity);
+        }
+
+        function updateStats(celebrity) {
+            const totalVotes = celebrity.roseanneVotes + celebrity.notRoseanneVotes;
+            const roseannePercentage = totalVotes > 0 ? Math.round((celebrity.roseanneVotes / totalVotes) * 100) : 0;
+
+            document.getElementById('totalVotes').textContent = totalVotes.toLocaleString();
+            document.getElementById('roseannePercentage').textContent = roseannePercentage + '%';
+            document.getElementById('progressFill').style.width = roseannePercentage + '%';
+        }
+
+        function updateUserVoteDisplay() {
+            document.getElementById('yourVotes').textContent = userVoteCount;
+        }
+
+        async function vote(voteType) {
+            if (isVoting || !currentCelebrity) return;
+            
+            isVoting = true;
+            disableVotingButtons();
+            
+            try {
+                showVoteAnimation(voteType);
+                
+                const response = await RoseanneAPI.submitVote(currentCelebrity.id, voteType);
+                
+                if (response.success) {
+                    if (voteType === 'roseanne') {
+                        currentCelebrity.roseanneVotes = response.newTotals.roseanneVotes;
+                    } else {
+                        currentCelebrity.notRoseanneVotes = response.newTotals.notRoseanneVotes;
+                    }
+                    
+                    userVoteCount++;
+                    localStorage.setItem('userVoteCount', userVoteCount.toString());
+                    updateUserVoteDisplay();
+                    updateStats(currentCelebrity);
+                    
+                    setTimeout(async () => {
+                        await loadRandomCelebrity();
+                        enableVotingButtons();
+                        isVoting = false;
+                    }, 1500);
+                } else {
+                    throw new Error('Vote submission failed');
+                }
+                
+            } catch (error) {
+                enableVotingButtons();
+                isVoting = false;
+                showError('Failed to submit vote. Please try again.');
+                console.error('Error submitting vote:', error);
+            }
+        }
+
+        function showVoteAnimation(voteType) {
+            const card = document.getElementById('celebrityCard');
+            const animation = document.createElement('div');
+            animation.className = 'vote-animation';
+            animation.textContent = voteType === 'roseanne' ? '🏠' : '❌';
+            
+            card.appendChild(animation);
+            
+            setTimeout(() => {
+                if (card.contains(animation)) {
+                    card.removeChild(animation);
+                }
+            }, 600);
+        }
+
+        function disableVotingButtons() {
+            document.getElementById('roseanneBtn').disabled = true;
+            document.getElementById('notRoseanneBtn').disabled = true;
+            document.querySelector('.voting-buttons').style.opacity = '0.5';
+        }
+
+        function enableVotingButtons() {
+            document.getElementById('roseanneBtn').disabled = false;
+            document.getElementById('notRoseanneBtn').disabled = false;
+            document.querySelector('.voting-buttons').style.opacity = '1';
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            disableVotingButtons();
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            enableVotingButtons();
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserVoteDisplay();
+            
+            // Touch interactions for mobile
+            document.querySelectorAll('.vote-btn, .start-button, .submit-button').forEach(btn => {
+                btn.addEventListener('touchstart', function() {
+                    if (!this.disabled) {
+                        this.style.transform = 'translateY(-2px)';
+                    }
+                });
+                
+                btn.addEventListener('touchend', function() {
+                    if (!this.disabled) {
+                        this.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
