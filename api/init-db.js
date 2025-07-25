@@ -34,11 +34,11 @@ export default async function handler(req, res) {
     // Insert initial celebrities with your custom images
     await sql`
       INSERT INTO celebrities (id, name, subtitle, image_url, approved) VALUES
-      ('melissa-mccarthy', 'Melissa McCarthy', 'Comedian & Actress', 'https://www.dropbox.com/scl/fi/prl30507penubxmbqaje3/Melissa-McCarthy.png?rlkey=2xgck51tqyqbfh0yxdizh48qq&st=ckpt6jmz&dl=0', true),
-      ('amy-schumer', 'Amy Schumer', 'Stand-up Comedian', 'https://www.dropbox.com/scl/fi/6bs9or9rdif0aobv2qe94/Amy-Schumer.png?rlkey=b918s5svn6hs7zrnfdadvu4uf&st=n2540fyl&dl=0', true),
-      ('lisa-kudrow', 'Lisa Kudrow', 'Writer & Comedian', 'https://www.dropbox.com/scl/fi/mrws0vwax5sf8cjnxotkh/Lisa-Kudrow.png?rlkey=2n2tl9c38tct5lp6gk7qk9149&st=2j02k56l&dl=0', true),
-      ('rebel-wilson', 'Rebel Wilson', 'Actress & Comedian', 'https://www.dropbox.com/scl/fi/xwldn9d0mnmjqqmqbid8c/Rebel-Wilson.png?rlkey=h9zsbtl65zimit5f47ptnir6v&st=x7ju9jdf&dl=0', true),
-      ('rosie-odonnell', 'Rosie O\'Donnell', 'TV Host & Comedian', 'https://www.dropbox.com/scl/fi/2kmkrflyen0ts94esm905/Rosie-ODonnell.png?rlkey=zu3vgdgclfm7mdtrs11od5wqr&st=fqm5lz21&dl=0', true)
+      ('melissa-mccarthy', 'Melissa McCarthy', 'Comedian & Actress', 'https://your-image-hosting.com/melissa-mccarthy.jpg', true),
+      ('amy-schumer', 'Amy Schumer', 'Stand-up Comedian', 'https://your-image-hosting.com/amy-schumer.jpg', true),
+      ('tina-fey', 'Tina Fey', 'Writer & Comedian', 'https://your-image-hosting.com/tina-fey.jpg', true),
+      ('rebel-wilson', 'Rebel Wilson', 'Actress & Comedian', 'https://your-image-hosting.com/rebel-wilson.jpg', true),
+      ('rosie-odonnell', 'Rosie O\'Donnell', 'TV Host & Comedian', 'https://your-image-hosting.com/rosie-odonnell.jpg', true)
       ON CONFLICT (id) DO NOTHING
     `;
 
