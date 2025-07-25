@@ -1,0 +1,22 @@
+{
+  "name": "roseanne-game",
+  "version": "1.0.0",
+  "description": "The Roseanne-Barr Scale - Celebrity Rating Game",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.5.0"
+  },
+  "keywords": [
+    "celebrity",
+    "rating",
+    "game",
+    "roseanne"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
