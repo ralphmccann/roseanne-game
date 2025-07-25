@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Upload Celebrities | Roseanne Game Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-button {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(68, 160, 141, 0.3);
+        }
+
+        .process-button {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .process-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .process-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #e7f3ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .csv-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .csv-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .csv-preview th,
+        .csv-preview td {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .csv-preview th {
+            background: #e9ecef;
+            font-weight: bold;
+        }
+
+        .example-csv {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-line;
+            margin: 15px 0;
+        }
+
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Bulk Celebrity Upload</h1>
+            <p>Upload a CSV file to add multiple celebrities at once</p>
+        </div>
+
+        <div class="content">
+            <a href="/admin.html" class="back-link">← Back to Main Admin</a>
+
+            <div class="section">
+                <h2>📋 CSV Format Required</h2>
+                <p>Your CSV file should have these columns (header row required):</p>
+                <div class="example-csv">name,subtitle,image_url,approved
+Melissa McCarthy,Comedian & Actress,https://example.com/melissa.jpg,true
+Amy Schumer,Stand-up Comedian,https://example.com/amy.jpg,true
+Tina Fey,Writer & Comedian,https://example.com/tina.jpg,false</div>
+                
+                <div class="info result" style="display: block;">
+                    <strong>Column Descriptions:</strong><br>
+                    • <strong>name</strong> - Celebrity full name (required)<br>
+                    • <strong>subtitle</strong> - Description like "Comedian & Actress" (optional)<br>
+                    • <strong>image_url</strong> - Direct link to celebrity photo (required)<br>
+                    • <strong>approved</strong> - true/false, whether to show immediately (optional, defaults to true)
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📁 Upload CSV File</h2>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('csvFile').click()">
+                    <div id="uploadText">
+                        <p style="font-size: 18px; margin-bottom: 10px;">📎 Click to select CSV file</p>
+                        <p style="color: #666;">Or drag and drop your CSV file here</p>
+                        <button type="button" class="upload-button">Choose File</button>
+                    </div>
+                    <div id="fileInfo" style="display: none;">
+                        <p style="font-size: 18px; color: #4ecdc4;">✓ File ready to upload</p>
+                        <p id="fileName" style="color: #666;"></p>
+                    </div>
+                </div>
+                <input type="file" id="csvFile" class="file-input" accept=".csv" />
+            </div>
+
+            <div id="previewSection" class="section" style="display: none;">
+                <h2>👀 CSV Preview</h2>
+                <div id="csvPreview" class="csv-preview"></div>
+                <button id="processButton" class="process-button">
+                    🚀 Upload All Celebrities to Database
+                </button>
+            </div>
+
+            <div id="progressSection" style="display: none;">
+                <h2>📊 Upload Progress</h2>
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <p id="progressText">Preparing upload...</p>
+            </div>
+
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let csvData = [];
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('csvFile');
+        const uploadText = document.getElementById('uploadText');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const previewSection = document.getElementById('previewSection');
+        const csvPreview = document.getElementById('csvPreview');
+        const processButton = document.getElementById('processButton');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const result = document.getElementById('result');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showResult('error', 'Please select a CSV file');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            uploadText.style.display = 'none';
+            fileInfo.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseCSV(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(csvText) {
+            try {
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+                
+                // Validate required headers
+                const requiredHeaders = ['name', 'image_url'];
+                const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+                
+                if (missingHeaders.length > 0) {
+                    showResult('error', `Missing required columns: ${missingHeaders.join(', ')}`);
+                    return;
+                }
+
+                csvData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim()) {
+                        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                        const row = {};
+                        headers.forEach((header, index) => {
+                            row[header] = values[index] || '';
+                        });
+                        csvData.push(row);
+                    }
+                }
+
+                if (csvData.length === 0) {
+                    showResult('error', 'No data rows found in CSV');
+                    return;
+                }
+
+                showPreview();
+                showResult('success', `Found ${csvData.length} celebrities in CSV file`);
+
+            } catch (error) {
+                showResult('error', `Error parsing CSV: ${error.message}`);
+            }
+        }
+
+        function showPreview() {
+            let html = '<table><thead><tr>';
+            const headers = Object.keys(csvData[0]);
+            headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            // Show first 5 rows as preview
+            const previewRows = csvData.slice(0, 5);
+            previewRows.forEach(row => {
+                html += '<tr>';
+                headers.forEach(header => {
+                    const value = row[header];
+                    const displayValue = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                    html += `<td>${displayValue}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            if (csvData.length > 5) {
+                html += `<tr><td colspan="${headers.length}" style="text-align: center; font-style: italic; color: #666;">... and ${csvData.length - 5} more rows</td></tr>`;
+            }
+
+            html += '</tbody></table>';
+            csvPreview.innerHTML = html;
+            previewSection.style.display = 'block';
+        }
+
+        processButton.addEventListener('click', async () => {
+            if (csvData.length === 0) {
+                showResult('error', 'No data to upload');
+                return;
+            }
+
+            processButton.disabled = true;
+            progressSection.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Starting upload...';
+
+            let successful = 0;
+            let failed = 0;
+            const errors = [];
+
+            for (let i = 0; i < csvData.length; i++) {
+                const celebrity = csvData[i];
+                const progress = ((i + 1) / csvData.length) * 100;
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `Uploading ${celebrity.name} (${i + 1}/${csvData.length})`;
+
+                try {
+                    const response = await fetch('/api/celebrities', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: celebrity.name,
+                            subtitle: celebrity.subtitle || '',
+                            image_url: celebrity.image_url,
+                            submitted_by: 'bulk-upload',
+                            approved: celebrity.approved === 'true' || celebrity.approved === true || !celebrity.hasOwnProperty('approved')
+                        })
+                    });
+
+                    if (response.ok) {
+                        successful++;
+                    } else {
+                        const error = await response.json();
+                        failed++;
+                        errors.push(`${celebrity.name}: ${error.error}`);
+                    }
+                } catch (error) {
+                    failed++;
+                    errors.push(`${celebrity.name}: Network error`);
+                }
+
+                // Small delay to show progress
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            progressText.textContent = 'Upload complete!';
+            processButton.disabled = false;
+
+            let resultMessage = `Upload completed! ${successful} successful, ${failed} failed.`;
+            if (errors.length > 0) {
+                resultMessage += `\n\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+                if (errors.length > 5) {
+                    resultMessage += `\n... and ${errors.length - 5} more errors`;
+                }
+            }
+
+            showResult(failed === 0 ? 'success' : 'warning', resultMessage);
+
+            if (successful > 0) {
+                setTimeout(() => {
+                    if (confirm('Upload successful! Go back to main admin to test?')) {
+                        window.location.href = '/admin.html';
+                    }
+                }, 2000);
+            }
+        });
+
+        function showResult(type, message) {
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+            result.innerHTML = `<strong>${type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Warning!'}</strong><br><pre>${message}</pre>`;
+        }
+    </script>
+</body>
+</html>
