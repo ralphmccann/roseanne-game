@@ -1,4 +1,5 @@
 import { Client } from 'pg';
+
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
