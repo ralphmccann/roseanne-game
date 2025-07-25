@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a Celebrity | Roseanne-Barr Scale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .form-container {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(68, 160, 141, 0.3);
+        }
+
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-button">← Back</a>
+            <h1>Submit a Celebrity</h1>
+            <p>Know someone perfect for the Roseanne Scale?</p>
+        </div>
+
+        <div class="form-container">
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="submitForm">
+                <div class="form-group">
+                    <label class="form-label" for="celebrityName">Celebrity Name *</label>
+                    <input type="text" id="celebrityName" class="form-input" required>
+                    <div class="form-help">Enter the full name of the celebrity</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="celebritySubtitle">Description</label>
+                    <input type="text" id="celebritySubtitle" class="form-input" placeholder="e.g., Comedian & Actress">
+                    <div class="form-help">Optional: What they're known for</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="imageUrl">Image URL *</label>
+                    <input type="url" id="imageUrl" class="form-input" required placeholder="https://example.com/celebrity-photo.jpg">
+                    <div class="form-help">Paste a direct link to their photo (JPG, PNG, or WebP)</div>
+                    <img id="imagePreview" class="image-preview" alt="Image preview">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="submitterName">Your Name</label>
+                    <input type="text" id="submitterName" class="form-input" placeholder="Optional">
+                    <div class="form-help">Optional: How should we credit you?</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="reason">Why are they a good Roseanne?</label>
+                    <textarea id="reason" class="form-input form-textarea" placeholder="Tell us why this celebrity embodies Roseanne energy..."></textarea>
+                    <div class="form-help">Help us understand your choice (optional)</div>
+                </div>
+
+                <button type="submit" class="submit-button" id="submitButton">
+                    Submit for Review
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('submitForm');
+        const imageUrlInput = document.getElementById('imageUrl');
+        const imagePreview = document.getElementById('imagePreview');
+        const submitButton = document.getElementById('submitButton');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Image preview functionality
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value;
+            if (url && (url.includes('.jpg') || url.includes('.jpeg') || url.includes('.png') || url.includes('.webp'))) {
+                imagePreview.src = url;
+                imagePreview.style.display = 'block';
+                imagePreview.onerror = function() {
+                    this.style.display = 'none';
+                };
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('celebrityName').value.trim(),
+                subtitle: document.getElementById('celebritySubtitle').value.trim(),
+                image_url: document.getElementById('imageUrl').value.trim(),
+                submitted_by: document.getElementById('submitterName').value.trim() || 'anonymous',
+                reason: document.getElementById('reason').value.trim()
+            };
+
+            if (!formData.name || !formData.image_url) {
+                showError('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+                hideMessages();
+
+                const response = await fetch('/api/celebrities', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Celebrity submitted successfully! We\'ll review and add them soon.');
+                    form.reset();
+                    imagePreview.style.display = 'none';
+                } else {
+                    showError(result.error || 'Submission failed. Please try again.');
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                showError('Network error. Please check your connection and try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit for Review';
+            }
+        });
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        function hideMessages() {
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
