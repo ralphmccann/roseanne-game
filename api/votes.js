@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { Client } from 'pg';
 
 export default async function handler(req, res) {
   // Enable CORS
