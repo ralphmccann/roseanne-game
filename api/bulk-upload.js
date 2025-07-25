@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     for (const celebrity of celebrities) {
       try {
-        const { name, subtitle, image_url, submitted_by, approved } = celebrity;
+        const { name, subtitle, image_url, approved } = celebrity;
         
         if (!name || !image_url) {
           results.failed++;
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
           name,
           subtitle || '',
           image_url,
-          submitted_by || 'bulk-upload',
+          'bulk-upload',
           approved !== false && approved !== 'false' // Default to true unless explicitly false
         ]);
 
