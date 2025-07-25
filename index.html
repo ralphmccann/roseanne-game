@@ -358,7 +358,7 @@
             
             <div class="submit-section">
                 <h3 class="submit-title">Know a Perfect Roseanne?</h3>
-                <p class="submit-subtitle">Submit celebrities you think should be rated on the Roseanne Bar Scale!</p>
+                <p class="submit-subtitle">Submit celebrities you think should be rated on the Roseanne Scale!</p>
                 <button class="submit-button" onclick="showSubmitForm()">Submit a Celebrity</button>
             </div>
         </div>
@@ -417,13 +417,14 @@
     </div>
 
     <script>
-        // Production-ready celebrity database with real image URLs
-        const celebrityDatabase = [
+        // Fallback celebrity data (only used if API fails)
+        // Real celebrities will be loaded from database via API
+        const fallbackCelebrities = [
             {
                 id: 'melissa-mccarthy',
                 name: "Melissa McCarthy",
                 subtitle: "Comedian & Actress",
-                image: "https://images.unsplash.com/photo-1494790108755-2616c9d621e0?w=400&h=400&fit=crop&crop=face",
+                image: "https://www.dropbox.com/scl/fi/prl30507penubxmbqaje3/Melissa-McCarthy.png?rlkey=2xgck51tqyqbfh0yxdizh48qq&st=4069cuwm&dl=0",
                 roseanneVotes: 0,
                 notRoseanneVotes: 0
             },
@@ -431,15 +432,15 @@
                 id: 'amy-schumer',
                 name: "Amy Schumer",
                 subtitle: "Stand-up Comedian",
-                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                image: "https://www.dropbox.com/scl/fi/6bs9or9rdif0aobv2qe94/Amy-Schumer.png?rlkey=b918s5svn6hs7zrnfdadvu4uf&st=co9w9o8g&dl=0",
                 roseanneVotes: 0,
                 notRoseanneVotes: 0
             },
             {
-                id: 'tina-fey',
-                name: "Tina Fey",
-                subtitle: "Writer & Comedian",
-                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
+                id: 'lisa-kudrow',
+                name: "Lisa Kudrow",
+                subtitle: "Actress & Comedian",
+                image: "https://www.dropbox.com/scl/fi/mrws0vwax5sf8cjnxotkh/Lisa-Kudrow.png?rlkey=2n2tl9c38tct5lp6gk7qk9149&st=tjr206l2&dl=0",
                 roseanneVotes: 0,
                 notRoseanneVotes: 0
             },
@@ -447,27 +448,30 @@
                 id: 'rebel-wilson',
                 name: "Rebel Wilson",
                 subtitle: "Actress & Comedian",
-                image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop&crop=face",
+                image: "https://www.dropbox.com/scl/fi/xwldn9d0mnmjqqmqbid8c/Rebel-Wilson.png?rlkey=h9zsbtl65zimit5f47ptnir6v&st=d587zzqb&dl=0",
                 roseanneVotes: 0,
                 notRoseanneVotes: 0
             }
         ];
 
-        // Production-ready API class (will connect to real backend)
+        // Production-ready API class with real backend calls
         class RoseanneAPI {
             static async getCelebrity(id) {
                 try {
-                    // This will be replaced with real API call: /api/celebrities/${id}
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    const response = await fetch(`/api/celebrities?id=${id}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
                     
-                    const celebrity = celebrityDatabase.find(c => c.id === id);
-                    if (!celebrity) throw new Error('Celebrity not found');
-                    
-                    // Simulate getting real vote counts from database
+                    // Convert database format to frontend format
                     return {
-                        ...celebrity,
-                        roseanneVotes: Math.floor(Math.random() * 1000) + 100,
-                        notRoseanneVotes: Math.floor(Math.random() * 800) + 50
+                        id: data.id,
+                        name: data.name,
+                        subtitle: data.subtitle,
+                        image: data.image_url,
+                        roseanneVotes: parseInt(data.roseanne_votes) || 0,
+                        notRoseanneVotes: parseInt(data.not_roseanne_votes) || 0
                     };
                 } catch (error) {
                     console.error('API Error:', error);
@@ -477,16 +481,22 @@
 
             static async submitVote(celebrityId, voteType) {
                 try {
-                    // This will be replaced with real API call: POST /api/votes
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                    const response = await fetch('/api/votes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            celebrity_id: celebrityId,
+                            vote_type: voteType
+                        })
+                    });
                     
-                    return {
-                        success: true,
-                        newTotals: {
-                            roseanneVotes: Math.floor(Math.random() * 1000) + 100,
-                            notRoseanneVotes: Math.floor(Math.random() * 800) + 50
-                        }
-                    };
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return await response.json();
                 } catch (error) {
                     console.error('Vote Error:', error);
                     throw error;
@@ -494,18 +504,15 @@
             }
 
             static async getRandomCelebrity() {
-                // This will be replaced with real API call: /api/celebrities/random
-                const randomIndex = Math.floor(Math.random() * celebrityDatabase.length);
-                return celebrityDatabase[randomIndex].id;
-            }
-
-            static async submitCelebrity(celebrityData) {
                 try {
-                    // This will be replaced with real API call: POST /api/celebrities/submit
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    return { success: true, message: 'Celebrity submitted for review!' };
+                    const response = await fetch('/api/celebrities?id=random');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    return data.id;
                 } catch (error) {
-                    console.error('Submit Error:', error);
+                    console.error('Random Celebrity Error:', error);
                     throw error;
                 }
             }
@@ -529,8 +536,7 @@
         }
 
         function showSubmitForm() {
-            // For now, this will be a simple alert. Later we'll add a real form.
-            alert('Celebrity submission form coming soon! Check back for updates.');
+            window.location.href = '/submit.html';
         }
 
         async function loadRandomCelebrity() {
