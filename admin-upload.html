@@ -432,18 +432,14 @@ Tina Fey,Writer & Comedian,https://example.com/tina.jpg,false</div>
                 progressText.textContent = `Uploading ${celebrity.name} (${i + 1}/${csvData.length})`;
 
                 try {
-                    const response = await fetch('/api/celebrities', {
+                    const response = await fetch('/api/bulk-upload', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            name: celebrity.name,
-                            subtitle: celebrity.subtitle || '',
-                            image_url: celebrity.image_url,
-                            submitted_by: 'bulk-upload',
-                            approved: celebrity.approved === 'true' || celebrity.approved === true || !celebrity.hasOwnProperty('approved')
-                        })
+    celebrities: csvData
+})
                     });
 
                     if (response.ok) {
