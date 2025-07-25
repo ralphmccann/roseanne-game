@@ -1,7 +1,7 @@
 {
   "name": "roseanne-game",
   "version": "1.0.0",
-  "description": "The Roseanne-Barr Scale - Celebrity Rating Game",
+  "description": "The Roseanne Bar - Celebrity Rating Game",
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
