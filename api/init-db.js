@@ -42,16 +42,19 @@ export default async function handler(req, res) {
       )
     `);
 
-    // Insert sample celebrities
-    await client.query(`
-      INSERT INTO celebrities (id, name, subtitle, image_url, approved) VALUES
-      ('melissa-mccarthy', 'Melissa McCarthy', 'Comedian & Actress', 'https://images.unsplash.com/photo-1494790108755-2616c9d621e0?w=400&h=400&fit=crop&crop=face', true),
-      ('amy-schumer', 'Amy Schumer', 'Stand-up Comedian', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face', true),
-      ('tina-fey', 'Tina Fey', 'Writer & Comedian', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face', true),
-      ('rebel-wilson', 'Rebel Wilson', 'Actress & Comedian', 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop&crop=face', true),
-      ('rosie-odonnell', 'Rosie O''Donnell', 'TV Host & Comedian', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face', true)
-      ON CONFLICT (id) DO NOTHING
-    `);
+    // Insert initial celebrities with your custom images
+await client.query(`
+  INSERT INTO celebrities (id, name, subtitle, image_url, approved) VALUES
+  ('melissa-mccarthy', 'Melissa McCarthy', 'Comedian & Actress', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Melissa%20McCarthy.jpg', true),
+  ('amy-schumer', 'Amy Schumer', 'Stand-up Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.jpg', true),
+  ('tina-fey', 'Tina Fey', 'Writer & Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Tina%20Fey.jpg', true),
+  ('rebel-wilson', 'Rebel Wilson', 'Actress & Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Rebel%20Wilson.png', true),
+  ('rosie-odonnell', 'Rosie O''Donnell', 'TV Host & Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Rosie%20ODonnell.png', true)
+  ON CONFLICT (id) DO UPDATE SET 
+    image_url = EXCLUDED.image_url,
+    name = EXCLUDED.name,
+    subtitle = EXCLUDED.subtitle
+`);
 
     await client.end();
 
