@@ -456,25 +456,8 @@
     </div>
 
     <script>
-      // Minimal fallback data (only used if database is completely down)
-const fallbackCelebrities = [
-    {
-        id: 'amy-schumer',
-        name: "Amy Schumer",
-        subtitle: "Stand-up Comedian",
-        image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.jpg",
-        roseanneVotes: 156,
-        notRoseanneVotes: 89
-    },
-    {
-        id: 'melissa-mccarthy',
-        name: "Melissa McCarthy",
-        subtitle: "Comedian & Actress",
-        image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Melissa%20McCarthy.jpg",
-        roseanneVotes: 234,
-        notRoseanneVotes: 123
-    }
-];
+      // No fallback celebrities
+const fallbackCelebrities = [];
 
         // Production-ready API class with real backend calls
         class RoseanneAPI {
