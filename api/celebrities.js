@@ -23,10 +23,10 @@ export default async function handler(req, res) {
     await client.connect();
 
     if (req.method === 'GET') {
-      const { id } = req.query;
+      const { id, approved } = req.query;
       
       if (id === 'random') {
-        // Get random celebrity
+        // Get random approved celebrity for voting
         const result = await client.query(`
           SELECT id, name, subtitle, image_url,
                  (SELECT COUNT(*) FROM votes WHERE celebrity_id = c.id AND vote_type = 'roseanne') as roseanne_votes,
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
         
         if (result.rows.length === 0) {
           await client.end();
-          return res.status(404).json({ error: 'No celebrities found' });
+          return res.status(404).json({ error: 'No approved celebrities found' });
         }
         
         await client.end();
@@ -62,15 +62,27 @@ export default async function handler(req, res) {
         await client.end();
         return res.status(200).json(result.rows[0]);
       } else {
-        // Get all celebrities
+        // Get all celebrities, optionally filtered by approval status
+        let whereClause = '';
+        let queryParams = [];
+        
+        if (approved === 'false') {
+          whereClause = 'WHERE approved = false';
+        } else if (approved === 'true') {
+          whereClause = 'WHERE approved = true';
+        } else {
+          // Default: only show approved celebrities for public access
+          whereClause = 'WHERE approved = true';
+        }
+
         const result = await client.query(`
-          SELECT id, name, subtitle, image_url,
+          SELECT id, name, subtitle, image_url, submitted_by, approved, created_at,
                  (SELECT COUNT(*) FROM votes WHERE celebrity_id = c.id AND vote_type = 'roseanne') as roseanne_votes,
                  (SELECT COUNT(*) FROM votes WHERE celebrity_id = c.id AND vote_type = 'not-roseanne') as not_roseanne_votes
           FROM celebrities c
-          WHERE approved = true
-          ORDER BY name
-        `);
+          ${whereClause}
+          ORDER BY created_at DESC
+        `, queryParams);
         
         await client.end();
         return res.status(200).json(result.rows);
@@ -88,9 +100,20 @@ export default async function handler(req, res) {
 
       const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
       
+      // Check if celebrity already exists
+      const existingCheck = await client.query(
+        'SELECT id FROM celebrities WHERE id = $1',
+        [id]
+      );
+
+      if (existingCheck.rows.length > 0) {
+        await client.end();
+        return res.status(400).json({ error: 'Celebrity with this name already exists' });
+      }
+      
       await client.query(`
-        INSERT INTO celebrities (id, name, subtitle, image_url, submitted_by, approved)
-        VALUES ($1, $2, $3, $4, $5, false)
+        INSERT INTO celebrities (id, name, subtitle, image_url, submitted_by, approved, created_at)
+        VALUES ($1, $2, $3, $4, $5, false, NOW())
       `, [id, name, subtitle || '', image_url, submitted_by || 'anonymous']);
       
       await client.end();
@@ -112,6 +135,6 @@ export default async function handler(req, res) {
       }
     }
     console.error('Database error:', error);
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
