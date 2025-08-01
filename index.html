@@ -456,89 +456,25 @@
     </div>
 
     <script>
-        // Your real celebrity database - these are used as fallbacks when API fails
-        const fallbackCelebrities = [
-            {
-                id: 'amy-schumer',
-                name: "Amy Schumer",
-                subtitle: "Stand-up Comedian",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.png",
-                roseanneVotes: 156,
-                notRoseanneVotes: 89
-            },
-            {
-                id: 'bill-hader',
-                name: "Bill Hader",
-                subtitle: "Actor & Comedian",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Bill%20Hader.png",
-                roseanneVotes: 203,
-                notRoseanneVotes: 167
-            },
-            {
-                id: 'danny-devito',
-                name: "Danny DeVito",
-                subtitle: "Actor & Director",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Danny%20Devito.png",
-                roseanneVotes: 298,
-                notRoseanneVotes: 102
-            },
-            {
-                id: 'david-cross',
-                name: "David Cross",
-                subtitle: "Actor & Comedian",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/David%20Cross.png",
-                roseanneVotes: 134,
-                notRoseanneVotes: 187
-            },
-            {
-                id: 'donna-kelce',
-                name: "Donna Kelce",
-                subtitle: "NFL Mom",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Donna%20Kelce.png",
-                roseanneVotes: 267,
-                notRoseanneVotes: 78
-            },
-            {
-                id: 'jack-black',
-                name: "Jack Black",
-                subtitle: "Actor & Musician",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Jack%20Black.png",
-                roseanneVotes: 189,
-                notRoseanneVotes: 145
-            },
-            {
-                id: 'john-goodman',
-                name: "John Goodman",
-                subtitle: "Actor",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/John%20Goodman.png",
-                roseanneVotes: 312,
-                notRoseanneVotes: 67
-            },
-            {
-                id: 'melissa-mccarthy',
-                name: "Melissa McCarthy",
-                subtitle: "Comedian & Actress",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Melissa%20McCarthy.png",
-                roseanneVotes: 345,
-                notRoseanneVotes: 89
-            },
-            {
-                id: 'seth-rogen',
-                name: "Seth Rogen",
-                subtitle: "Actor & Comedian",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Seth%20Rogen.png",
-                roseanneVotes: 178,
-                notRoseanneVotes: 156
-            },
-            {
-                id: 'rebel-wilson',
-                name: "Rebel Wilson",
-                subtitle: "Actress & Comedian",
-                image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Rebel%20Wilson.png",
-                roseanneVotes: 234,
-                notRoseanneVotes: 123
-            }
-        ];
+      // Minimal fallback data (only used if database is completely down)
+const fallbackCelebrities = [
+    {
+        id: 'amy-schumer',
+        name: "Amy Schumer",
+        subtitle: "Stand-up Comedian",
+        image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.png",
+        roseanneVotes: 156,
+        notRoseanneVotes: 89
+    },
+    {
+        id: 'melissa-mccarthy',
+        name: "Melissa McCarthy",
+        subtitle: "Comedian & Actress",
+        image: "https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Melissa%20McCarthy.png",
+        roseanneVotes: 234,
+        notRoseanneVotes: 123
+    }
+];
 
         // Production-ready API class with real backend calls
         class RoseanneAPI {
