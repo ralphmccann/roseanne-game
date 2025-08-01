@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrity Approvals | Roseanne Game Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .celebrity-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .celebrity-card:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .celebrity-content {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .celebrity-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #eee;
+        }
+
+        .celebrity-image.error {
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .celebrity-info {
+            flex: 1;
+        }
+
+        .celebrity-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .celebrity-subtitle {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .celebrity-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .celebrity-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 150px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-approve {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .btn-approve:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(68, 160, 141, 0.3);
+        }
+
+        .btn-reject {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .btn-reject:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-edit {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            color: white;
+        }
+
+        .btn-edit:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .celebrity-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .celebrity-actions {
+                flex-direction: row;
+                min-width: auto;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Celebrity Approvals</h1>
+            <p>Review and approve submitted celebrities</p>
+        </div>
+
+        <div class="content">
+            <a href="/admin.html" class="back-link">← Back to Main Admin</a>
+            
+            <button class="refresh-btn" onclick="loadPendingCelebrities()">🔄 Refresh</button>
+
+            <div class="stats-bar" id="statsBar" style="display: none;">
+                <div class="stat-item">
+                    <div class="stat-number" id="pendingCount">0</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCelebrities">0</div>
+                    <div class="stat-label">Total Celebrities</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="approvedToday">0</div>
+                    <div class="stat-label">Approved Today</div>
+                </div>
+            </div>
+
+            <div id="result" class="result"></div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <div>Loading pending approvals...</div>
+            </div>
+
+            <div id="celebrityList"></div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h3>🎉 All caught up!</h3>
+                <p>No celebrities pending approval right now.</p>
+                <p style="margin-top: 10px;">New submissions will appear here automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pendingCelebrities = [];
+
+        // Load pending celebrities on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPendingCelebrities();
+        });
+
+        async function loadPendingCelebrities() {
+            showLoading();
+            hideResult();
+
+            try {
+                // Get pending celebrities
+                const response = await fetch('/api/celebrities?approved=false');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                pendingCelebrities = Array.isArray(data) ? data : [];
+
+                // Get total stats
+                const totalResponse = await fetch('/api/celebrities');
+                const totalData = await totalResponse.json();
+                const totalCelebrities = Array.isArray(totalData) ? totalData.length : 0;
+
+                hideLoading();
+                displayCelebrities(pendingCelebrities);
+                updateStats(pendingCelebrities.length, totalCelebrities);
+
+            } catch (error) {
+                hideLoading();
+                console.error('Error loading celebrities:', error);
+                showResult('error', 'Failed to load pending celebrities. Please try again.');
+            }
+        }
+
+        function displayCelebrities(celebrities) {
+            const listContainer = document.getElementById('celebrityList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (celebrities.length === 0) {
+                listContainer.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            listContainer.innerHTML = celebrities.map(celebrity => `
+                <div class="celebrity-card" id="card-${celebrity.id}">
+                    <div class="celebrity-content">
+                        <img src="${celebrity.image_url}" 
+                             alt="${celebrity.name}" 
+                             class="celebrity-image"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="celebrity-image error" style="display:none;">No Image</div>
+                        
+                        <div class="celebrity-info">
+                            <div class="celebrity-name">${celebrity.name}</div>
+                            <div class="celebrity-subtitle">${celebrity.subtitle || 'No description'}</div>
+                            <div class="celebrity-meta">
+                                <span>👤 Submitted by: ${celebrity.submitted_by || 'Anonymous'}</span>
+                                <span>📅 ${new Date(celebrity.created_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+
+                        <div class="celebrity-actions">
+                            <button class="btn btn-approve" onclick="approveCelebrity('${celebrity.id}')">
+                                ✅ Approve
+                            </button>
+                            <button class="btn btn-reject" onclick="rejectCelebrity('${celebrity.id}')">
+                                ❌ Reject
+                            </button>
+                            <button class="btn btn-edit" onclick="toggleEditForm('${celebrity.id}')">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="edit-form" id="edit-${celebrity.id}">
+                        <div class="form-group">
+                            <label class="form-label">Name:</label>
+                            <input type="text" class="form-input" id="name-${celebrity.id}" value="${celebrity.name}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Subtitle:</label>
+                            <input type="text" class="form-input" id="subtitle-${celebrity.id}" value="${celebrity.subtitle || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Image URL:</label>
+                            <input type="url" class="form-input" id="imageurl-${celebrity.id}" value="${celebrity.image_url}">
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-approve" onclick="saveAndApprove('${celebrity.id}')">💾 Save & Approve</button>
+                            <button class="btn btn-edit" onclick="toggleEditForm('${celebrity.id}')">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(pending, total) {
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('totalCelebrities').textContent = total;
+            document.getElementById('approvedToday').textContent = '0'; // Could track this with date filtering
+            document.getElementById('statsBar').style.display = 'flex';
+        }
+
+        async function approveCelebrity(id) {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Approving...';
+
+            try {
+                const response = await fetch('/api/celebrities/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: id, approved: true })
+                });
+
+                if (response.ok) {
+                    showResult('success', 'Celebrity approved successfully!');
+                    removeCelebrityCard(id);
+                } else {
+                    throw new Error('Approval failed');
+                }
+
+            } catch (error) {
+                showResult('error', 'Failed to approve celebrity. Please try again.');
+                button.disabled = false;
+                button.textContent = '✅ Approve';
+            }
+        }
+
+        async function rejectCelebrity(id) {
+            if (!confirm('Are you sure you want to reject this celebrity? This action cannot be undone.')) {
+                return;
+            }
+
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Rejecting...';
+
+            try {
+                const response = await fetch('/api/celebrities/approve', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                if (response.ok) {
+                    showResult('success', 'Celebrity rejected and removed.');
+                    removeCelebrityCard(id);
+                } else {
+                    throw new Error('Rejection failed');
+                }
+
+            } catch (error) {
+                showResult('error', 'Failed to reject celebrity. Please try again.');
+                button.disabled = false;
+                button.textContent = '❌ Reject';
+            }
+        }
+
+        function toggleEditForm(id) {
+            const editForm = document.getElementById(`edit-${id}`);
+            editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function saveAndApprove(id) {
+            const name = document.getElementById(`name-${id}`).value;
+            const subtitle = document.getElementById(`subtitle-${id}`).value;
+            const imageUrl = document.getElementById(`imageurl-${id}`).value;
+
+            if (!name || !imageUrl) {
+                showResult('error', 'Name and Image URL are required.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/celebrities/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        name: name,
+                        subtitle: subtitle,
+                        image_url: imageUrl,
+                        approved: true
+                    })
+                });
+
+                if (response.ok) {
+                    showResult('success', 'Celebrity updated and approved successfully!');
+                    removeCelebrityCard(id);
+                } else {
+                    throw new Error('Update failed');
+                }
+
+            } catch (error) {
+                showResult('error', 'Failed to update celebrity. Please try again.');
+            }
+        }
+
+        function removeCelebrityCard(id) {
+            const card = document.getElementById(`card-${id}`);
+            if (card) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(-100%)';
+                setTimeout(() => {
+                    card.remove();
+                    // Update counts
+                    const remaining = document.querySelectorAll('.celebrity-card').length;
+                    document.getElementById('pendingCount').textContent = remaining;
+                    
+                    if (remaining === 0) {
+                        document.getElementById('emptyState').style.display = 'block';
+                    }
+                }, 300);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('celebrityList').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('celebrityList').style.display = 'block';
+        }
+
+        function showResult(type, message) {
+            const result = document.getElementById('result');
+            result.className = `result ${type}`;
+            result.style.display = 'block';
+            result.textContent = message;
+            
+            setTimeout(() => {
+                result.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideResult() {
+            document.getElementById('result').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
