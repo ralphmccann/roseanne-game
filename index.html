@@ -478,11 +478,9 @@ const fallbackCelebrities = [];
                         roseanneVotes: parseInt(data.roseanne_votes) || 0,
                         notRoseanneVotes: parseInt(data.not_roseanne_votes) || 0
                     };
-              } catch (error) {
+            } catch (error) {
     console.error('API Error:', error);
-    // Fall back to local data if API fails  ← THIS IS THE CULPRIT!
-    const celebrity = fallbackCelebrities.find(c => c.id === id);
-    if (celebrity) return celebrity;
+    // No fallback - force database only
     throw error;
 }
             }
