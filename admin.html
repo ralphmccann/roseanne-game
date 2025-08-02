@@ -192,3 +192,55 @@
     </script>
 </body>
 </html>
+<script>
+        // Authentication check function
+        async function checkAdminAuth() {
+            const token = localStorage.getItem('adminToken');
+            const expiry = localStorage.getItem('adminExpiry');
+            
+            if (!token || !expiry || new Date().getTime() > parseInt(expiry)) {
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/auth/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    window.location.href = '/admin-login.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+        }
+
+        // Add logout button
+        function addLogoutButton() {
+            const logoutBtn = document.createElement('button');
+            logoutBtn.textContent = 'Logout';
+            logoutBtn.style.cssText = `
+                position: fixed; top: 20px; right: 20px; background: #ff6b6b;
+                color: white; border: none; padding: 8px 15px; border-radius: 20px;
+                cursor: pointer; font-size: 14px; z-index: 1000;
+            `;
+            logoutBtn.onclick = () => {
+                if (confirm('Logout?')) {
+                    localStorage.clear();
+                    window.location.href = '/admin-login.html';
+                }
+            };
+            document.body.appendChild(logoutBtn);
+        }
+
+        // Check auth on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!(await checkAdminAuth())) return;
+            addLogoutButton();
+        });
+
+        async function initializeDatabase() {
