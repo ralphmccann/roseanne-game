@@ -32,6 +32,7 @@
             padding: 30px;
             text-align: center;
             color: white;
+            position: relative;
         }
 
         .header h1 {
@@ -41,6 +42,24 @@
 
         .header p {
             opacity: 0.9;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .content {
@@ -331,12 +350,13 @@
 <body>
     <div class="container">
         <div class="header">
+            <button class="logout-btn" onclick="logout()">Logout</button>
             <h1>📋 Celebrity Approvals</h1>
             <p>Review and approve submitted celebrities</p>
         </div>
 
         <div class="content">
-            <a href="/admin.html" class="back-link">← Back to Main Admin</a>
+            <a href="/admin-dashboard.html" class="back-link">← Back to Dashboard</a>
             
             <button class="refresh-btn" onclick="loadPendingCelebrities()">🔄 Refresh</button>
 
@@ -373,50 +393,54 @@
     </div>
 
     <script>
-document.addEventListener('DOMContentLoaded', async function() {
-    // Check authentication first
-    const token = localStorage.getItem('adminToken');
-    const expiry = localStorage.getItem('adminExpiry');
-    
-    if (!token || !expiry || new Date().getTime() > parseInt(expiry)) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/auth/verify', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) {
-            window.location.href = '/admin-login.html';
-            return;
-        }
-    } catch (error) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    // Add logout button
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = 'Logout';
-    logoutBtn.style.cssText = `position: fixed; top: 20px; right: 20px; background: #ff6b6b; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; z-index: 1000;`;
-    logoutBtn.onclick = () => {
-        if (confirm('Logout?')) {
-            localStorage.clear();
-            window.location.href = '/admin-login.html';
-        }
-    };
-    document.body.appendChild(logoutBtn);
-
-    // Your existing initialization code
-    loadPendingCelebrities();
-});
         let pendingCelebrities = [];
 
-        // Load pending celebrities on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadPendingCelebrities();
+        // Authentication and initialization
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication first
+            if (!(await checkAdminAuth())) {
+                return; // Already redirected to login
+            }
+            
+            // Load pending celebrities
+            await loadPendingCelebrities();
         });
+
+        // Authentication check function
+        async function checkAdminAuth() {
+            const token = localStorage.getItem('adminToken');
+            const expiry = localStorage.getItem('adminExpiry');
+            
+            if (!token || !expiry || new Date().getTime() > parseInt(expiry)) {
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/auth/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    window.location.href = '/admin-login.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+        }
+
+        // Get auth headers for API calls
+        function getAuthHeaders() {
+            const token = localStorage.getItem('adminToken');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
 
         async function loadPendingCelebrities() {
             showLoading();
@@ -424,7 +448,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             try {
                 // Get pending celebrities
-                const response = await fetch('/api/celebrities?approved=false');
+                const response = await fetch('/api/celebrities?approved=false', {
+                    headers: getAuthHeaders()
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -434,7 +460,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 pendingCelebrities = Array.isArray(data) ? data : [];
 
                 // Get total stats
-                const totalResponse = await fetch('/api/celebrities');
+                const totalResponse = await fetch('/api/celebrities', {
+                    headers: getAuthHeaders()
+                });
                 const totalData = await totalResponse.json();
                 const totalCelebrities = Array.isArray(totalData) ? totalData.length : 0;
 
@@ -527,11 +555,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             button.textContent = 'Approving...';
 
             try {
-                const response = await fetch('/api/celebrities/approve', {
+                const response = await fetch('/api/approve', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({ id: id, approved: true })
                 });
 
@@ -559,11 +585,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             button.textContent = 'Rejecting...';
 
             try {
-                const response = await fetch('/api/celebrities/approve', {
+                const response = await fetch('/api/approve', {
                     method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({ id: id })
                 });
 
@@ -597,11 +621,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             try {
-                const response = await fetch('/api/celebrities/approve', {
+                const response = await fetch('/api/approve', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({
                         id: id,
                         name: name,
@@ -666,6 +688,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         function hideResult() {
             document.getElementById('result').style.display = 'none';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminExpiry');
+                window.location.href = '/admin-login.html';
+            }
         }
     </script>
 </body>
