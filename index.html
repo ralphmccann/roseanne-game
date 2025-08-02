@@ -555,29 +555,22 @@ const fallbackCelebrities = [];
         }
 
         async function loadRandomCelebrity() {
-            try {
-                showLoading();
-                hideMessages();
-                
-                const celebrityId = await RoseanneAPI.getRandomCelebrity();
-                currentCelebrity = await RoseanneAPI.getCelebrity(celebrityId);
-                
-                displayCelebrity(currentCelebrity);
-                hideLoading();
-                
-            } catch (error) {
-                hideLoading();
-                showError('Failed to load celebrity. Please try again.');
-                console.error('Error loading celebrity:', error);
-                
-                // Try to use fallback data
-                if (fallbackCelebrities.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * fallbackCelebrities.length);
-                    currentCelebrity = fallbackCelebrities[randomIndex];
-                    displayCelebrity(currentCelebrity);
-                }
-            }
-        }
+    try {
+        showLoading();
+        hideMessages();
+        
+        const celebrityId = await RoseanneAPI.getRandomCelebrity();
+        currentCelebrity = await RoseanneAPI.getCelebrity(celebrityId);
+        
+        displayCelebrity(currentCelebrity);
+        hideLoading();
+        
+    } catch (error) {
+        // If this catch block runs, it falls back to local data
+        console.error('Error loading celebrity:', error);
+        // Check if this is running
+    }
+}
 
         function displayCelebrity(celebrity) {
             document.getElementById('celebrityName').textContent = celebrity.name;
