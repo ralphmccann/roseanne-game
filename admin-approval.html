@@ -373,6 +373,44 @@
     </div>
 
     <script>
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check authentication first
+    const token = localStorage.getItem('adminToken');
+    const expiry = localStorage.getItem('adminExpiry');
+    
+    if (!token || !expiry || new Date().getTime() > parseInt(expiry)) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/auth/verify', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+            window.location.href = '/admin-login.html';
+            return;
+        }
+    } catch (error) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    // Add logout button
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'Logout';
+    logoutBtn.style.cssText = `position: fixed; top: 20px; right: 20px; background: #ff6b6b; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; z-index: 1000;`;
+    logoutBtn.onclick = () => {
+        if (confirm('Logout?')) {
+            localStorage.clear();
+            window.location.href = '/admin-login.html';
+        }
+    };
+    document.body.appendChild(logoutBtn);
+
+    // Your existing initialization code
+    loadPendingCelebrities();
+});
         let pendingCelebrities = [];
 
         // Load pending celebrities on page load
