@@ -1,3 +1,4 @@
+// Corrected celebrities.js API file for Supabase
 import { Client } from 'pg';
 
 export default async function handler(req, res) {
@@ -13,8 +14,9 @@ export default async function handler(req, res) {
   let client;
 
   try {
+    // Use environment variable for connection string (NEVER hardcode it!)
     client = new Client({
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: process.env.POSTGRES_URL, // This should be in your Vercel environment variables
       ssl: {
         rejectUnauthorized: false
       }
