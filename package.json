@@ -1,7 +1,7 @@
 {
   "name": "roseanne-game",
   "version": "1.0.0",
-  "description": "The Roseanne-Barr Scale - Celebrity Rating Game",
+  "description": "The Roseanne Bar Scale - Celebrity Rating Game",
   "main": "index.html",
   "dependencies": {
     "pg": "^8.11.0"
