@@ -42,12 +42,12 @@ export default async function handler(req, res) {
       )
     `);
 
-    // Insert initial celebrities with your custom images
+// In your init-db.js, replace the current INSERT with:
 await client.query(`
   INSERT INTO celebrities (id, name, subtitle, image_url, approved) VALUES
-  ('melissa-mccarthy', 'Melissa McCarthy', 'Comedian & Actress', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Melissa%20McCarthy.jpg', true),
-  ('amy-schumer', 'Amy Schumer', 'Stand-up Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.jpg', true),
-  ('tina-fey', 'Tina Fey', 'Writer & Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Tina%20Fey.jpg', true),
+  ('melissa-mccarthy', 'Melissa McCarthy', 'Comedian & Actress', 'https://github.com/williamsongrowth/roseanne-game/blob/5e0afd8027bc15c02281c4d11b6d9af1f1c43e2f/images/Melissa%20McCarthy.jpg', true),
+  ('amy-schumer', 'Amy Schumer', 'Stand-up Comedian', 'https://github.com/williamsongrowth/roseanne-game/blob/5e0afd8027bc15c02281c4d11b6d9af1f1c43e2f/images/Amy%20Schumer.jpg', true),
+  ('tina-fey', 'Tina Fey', 'Writer & Comedian', 'https://github.com/williamsongrowth/roseanne-game/blob/5e0afd8027bc15c02281c4d11b6d9af1f1c43e2f/images/Tina%20Fey.jpg', true),
   ('rebel-wilson', 'Rebel Wilson', 'Actress & Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Rebel%20Wilson.png', true),
   ('rosie-odonnell', 'Rosie O''Donnell', 'TV Host & Comedian', 'https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Rosie%20ODonnell.png', true)
   ON CONFLICT (id) DO UPDATE SET 
