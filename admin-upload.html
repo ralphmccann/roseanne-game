@@ -32,6 +32,7 @@
             padding: 30px;
             text-align: center;
             color: white;
+            position: relative;
         }
 
         .header h1 {
@@ -43,12 +44,30 @@
             opacity: 0.9;
         }
 
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         .content {
             padding: 40px;
         }
 
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .section h2 {
@@ -191,6 +210,22 @@
             margin: 15px 0;
         }
 
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
         .back-link {
             display: inline-block;
             margin-bottom: 20px;
@@ -202,24 +237,54 @@
         .back-link:hover {
             text-decoration: underline;
         }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <button class="logout-btn" onclick="logout()">Logout</button>
             <h1>🚀 Bulk Celebrity Upload</h1>
             <p>Upload a CSV file to add multiple celebrities at once</p>
         </div>
 
         <div class="content">
-            <a href="/admin.html" class="back-link">← Back to Main Admin</a>
+            <a href="/admin-dashboard.html" class="back-link">← Back to Dashboard</a>
 
             <div class="section">
                 <h2>📋 CSV Format Required</h2>
                 <p>Your CSV file should have these columns (header row required):</p>
                 <div class="example-csv">name,subtitle,image_url,approved
-Amy Schumer,Stand-up Comedian,https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.png,true
+Amy Schumer,Stand-up Comedian,https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Amy%20Schumer.jpg,true
 Bill Hader,Actor & Comedian,https://raw.githubusercontent.com/williamsongrowth/roseanne-game/main/images/Bill%20Hader.png,true</div>
+                
+                <div class="info result" style="display: block;">
+                    <strong>Column Descriptions:</strong><br>
+                    • <strong>name</strong> - Celebrity full name (required)<br>
+                    • <strong>subtitle</strong> - Description like "Comedian & Actress" (optional)<br>
+                    • <strong>image_url</strong> - Direct link to celebrity photo (required)<br>
+                    • <strong>approved</strong> - true/false, whether to show immediately (optional, defaults to true)
+                </div>
             </div>
 
             <div class="section">
@@ -246,6 +311,14 @@ Bill Hader,Actor & Comedian,https://raw.githubusercontent.com/williamsongrowth/r
                 </button>
             </div>
 
+            <div id="progressSection" style="display: none;">
+                <h2>📊 Upload Progress</h2>
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <p id="progressText">Preparing upload...</p>
+            </div>
+
             <div id="result" class="result"></div>
         </div>
     </div>
@@ -261,39 +334,93 @@ Bill Hader,Actor & Comedian,https://raw.githubusercontent.com/williamsongrowth/r
         const previewSection = document.getElementById('previewSection');
         const csvPreview = document.getElementById('csvPreview');
         const processButton = document.getElementById('processButton');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
         const result = document.getElementById('result');
 
-        // Click to upload
-        uploadArea.addEventListener('click', (e) => {
-            if (e.target.tagName !== 'BUTTON') {
-                fileInput.click();
+        // Authentication and initialization
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication first
+            if (!(await checkAdminAuth())) {
+                return; // Already redirected to login
             }
+            
+            // Initialize upload functionality
+            setupUploadHandlers();
         });
 
-        // Drag and drop functionality
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
+        // Authentication check function
+        async function checkAdminAuth() {
+            const token = localStorage.getItem('adminToken');
+            const expiry = localStorage.getItem('adminExpiry');
+            
+            if (!token || !expiry || new Date().getTime() > parseInt(expiry)) {
+                window.location.href = '/admin-login.html';
+                return false;
             }
-        });
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
+            try {
+                const response = await fetch('/api/auth/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    window.location.href = '/admin-login.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/admin-login.html';
+                return false;
             }
-        });
+        }
+
+        // Get auth headers for API calls
+        function getAuthHeaders() {
+            const token = localStorage.getItem('adminToken');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        function setupUploadHandlers() {
+            // Click to upload
+            uploadArea.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    fileInput.click();
+                }
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            processButton.addEventListener('click', processCSVUpload);
+        }
 
         function handleFile(file) {
             if (!file.name.toLowerCase().endsWith('.csv')) {
@@ -416,49 +543,52 @@ Bill Hader,Actor & Comedian,https://raw.githubusercontent.com/williamsongrowth/r
             previewSection.style.display = 'block';
         }
 
-        processButton.addEventListener('click', async () => {
+        async function processCSVUpload() {
             if (csvData.length === 0) {
                 showResult('error', 'No data to upload');
                 return;
             }
 
             processButton.disabled = true;
-            processButton.textContent = 'Uploading...';
+            progressSection.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Starting upload...';
 
             try {
                 const response = await fetch('/api/bulk-upload', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({
                         celebrities: csvData
                     })
                 });
 
-                const result = await response.json();
+                const uploadResult = await response.json();
 
-                if (response.ok && result.success) {
-                    let message = `Upload completed! ${result.results.successful} successful, ${result.results.failed} failed.`;
+                if (response.ok && uploadResult.success) {
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Upload complete!';
+
+                    let message = `Upload completed! ${uploadResult.results.successful} successful, ${uploadResult.results.failed} failed.`;
                     
-                    if (result.results.errors.length > 0) {
-                        message += `\n\nErrors:\n${result.results.errors.slice(0, 5).join('\n')}`;
-                        if (result.results.errors.length > 5) {
-                            message += `\n... and ${result.results.errors.length - 5} more errors`;
+                    if (uploadResult.results.errors.length > 0) {
+                        message += `\n\nErrors:\n${uploadResult.results.errors.slice(0, 5).join('\n')}`;
+                        if (uploadResult.results.errors.length > 5) {
+                            message += `\n... and ${uploadResult.results.errors.length - 5} more errors`;
                         }
                     }
 
-                    showResult(result.results.failed === 0 ? 'success' : 'warning', message);
+                    showResult(uploadResult.results.failed === 0 ? 'success' : 'warning', message);
 
-                    if (result.results.successful > 0) {
+                    if (uploadResult.results.successful > 0) {
                         setTimeout(() => {
-                            if (confirm('Upload successful! Go to main admin to check celebrities?')) {
-                                window.location.href = '/admin.html';
+                            if (confirm('Upload successful! Go back to dashboard?')) {
+                                window.location.href = '/admin-dashboard.html';
                             }
                         }, 2000);
                     }
                 } else {
-                    showResult('error', result.error || 'Upload failed');
+                    showResult('error', uploadResult.error || 'Upload failed');
                 }
 
             } catch (error) {
@@ -468,12 +598,20 @@ Bill Hader,Actor & Comedian,https://raw.githubusercontent.com/williamsongrowth/r
                 processButton.disabled = false;
                 processButton.textContent = '🚀 Upload All Celebrities to Database';
             }
-        });
+        }
 
         function showResult(type, message) {
             result.className = `result ${type}`;
             result.style.display = 'block';
             result.innerHTML = `<strong>${type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Warning!'}</strong><br><pre>${message}</pre>`;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminExpiry');
+                window.location.href = '/admin-login.html';
+            }
         }
     </script>
 </body>
