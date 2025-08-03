@@ -555,7 +555,7 @@
             button.textContent = 'Approving...';
 
             try {
-                const response = await fetch('/api/approve', {
+                const response = await fetch('/api/celebrities/approve', {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ id: id, approved: true })
@@ -585,7 +585,7 @@
             button.textContent = 'Rejecting...';
 
             try {
-                const response = await fetch('/api/approve', {
+                const response = await fetch('/api/celebrities/approve', {
                     method: 'DELETE',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({ id: id })
@@ -621,7 +621,7 @@
             }
 
             try {
-                const response = await fetch('/api/approve', {
+                const response = await fetch('/api/celebrities/approve', {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({
